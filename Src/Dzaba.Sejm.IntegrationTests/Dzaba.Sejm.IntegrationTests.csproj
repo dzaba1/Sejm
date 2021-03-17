@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+	<OutputPath>..\..\bin\Tests\$(Configuration)</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.1" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Dzaba.Sejm.DataHarvest\Dzaba.Sejm.DataHarvest.csproj" />
+    <ProjectReference Include="..\Dzaba.Sejm.TestUtils\Dzaba.Sejm.TestUtils.csproj" />
+  </ItemGroup>
+
+</Project>
