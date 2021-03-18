@@ -11,6 +11,7 @@ namespace Dzaba.Sejm.DataHarvest
 
             services.AddTransient<ISejmCrawler, SejmCrawler>();
             services.AddTransient<IPageRequesterWrap, PageRequesterWrap>();
+            services.AddTransient<IArchiwumCrawler, ArchiwumCrawler>();
         }
     }
 }

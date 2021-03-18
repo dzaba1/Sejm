@@ -1,6 +1,7 @@
 ﻿using Dzaba.Sejm.DataHarvest;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
+using Serilog;
 using System;
 
 namespace Dzaba.Sejm.IntegrationTests
@@ -17,7 +18,19 @@ namespace Dzaba.Sejm.IntegrationTests
             var services = new ServiceCollection();
             services.RegisterSejmDataHarvest();
 
+            RegisterLogging(services);
+
             container = services.BuildServiceProvider();
+        }
+
+        private void RegisterLogging(IServiceCollection services)
+        {
+            var logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .WriteTo.Console()
+                .CreateLogger();
+
+            services.AddLogging(b => b.AddSerilog(logger, true));
         }
 
         [TearDown]
