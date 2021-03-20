@@ -22,15 +22,19 @@ namespace Dzaba.Sejm.DataHarvest
 
         private readonly IPageRequesterWrap pageRequester;
         private readonly ILogger<ArchiwumCrawler> logger;
+        private readonly IPoliticiansCrawlerManager politiciansCrawlerManager;
 
         public ArchiwumCrawler(IPageRequesterWrap pageRequester,
-            ILogger<ArchiwumCrawler> logger)
+            ILogger<ArchiwumCrawler> logger, 
+            IPoliticiansCrawlerManager politiciansCrawlerManager)
         {
             Require.NotNull(pageRequester, nameof(pageRequester));
             Require.NotNull(logger, nameof(logger));
+            Require.NotNull(politiciansCrawlerManager, nameof(politiciansCrawlerManager));
 
             this.pageRequester = pageRequester;
             this.logger = logger;
+            this.politiciansCrawlerManager = politiciansCrawlerManager;
         }
 
         public async Task CrawlAsync(Uri url, CrawlData data)
@@ -64,10 +68,25 @@ namespace Dzaba.Sejm.DataHarvest
 
         private async Task ProcessArchiwumTermOfOffice(Uri archUrl, IElement element, CrawlData data)
         {
-            HarvestTermOfOffice(archUrl, element, data);
+            var termOfOffice = HarvestTermOfOffice(archUrl, element, data);
+            var anchors = element.QuerySelectorAll("a")
+                .OfType<IHtmlAnchorElement>()
+                .ToArray();
+
+            await ProcessPoliticans(anchors, termOfOffice, data)
+                .ConfigureAwait(false);
         }
 
-        private void HarvestTermOfOffice(Uri archUrl, IElement element, CrawlData data)
+        private async Task ProcessPoliticans(IEnumerable<IHtmlAnchorElement> anchors, TermOfOffice termOfOffice, CrawlData data)
+        {
+            var politiciansAnchor = anchors.First(a => a.InnerHtml == "Posłowie");
+            var url = new Uri(politiciansAnchor.Href);
+
+            await politiciansCrawlerManager.CrawlAsync(url, termOfOffice, data)
+                .ConfigureAwait(false);
+        }
+
+        private TermOfOffice HarvestTermOfOffice(Uri archUrl, IElement element, CrawlData data)
         {
             var strong = element.QuerySelector("strong");
             var termOfService = ParseArchiwumTermOfService(strong.TextContent);
@@ -82,6 +101,7 @@ namespace Dzaba.Sejm.DataHarvest
             }
 
             data.DataNotifier.NewTermOfOfficeFound(termOfService);
+            return termOfService;
         }
 
         private TermOfOffice ParseArchiwumTermOfService(string name)
