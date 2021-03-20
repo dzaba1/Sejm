@@ -22,11 +22,11 @@ namespace Dzaba.Sejm.DataHarvest
 
         private readonly IPageRequesterWrap pageRequester;
         private readonly ILogger<ArchiwumCrawler> logger;
-        private readonly IPoliticiansCrawlerManager politiciansCrawlerManager;
+        private readonly IDeputiesCrawlerManager politiciansCrawlerManager;
 
         public ArchiwumCrawler(IPageRequesterWrap pageRequester,
-            ILogger<ArchiwumCrawler> logger, 
-            IPoliticiansCrawlerManager politiciansCrawlerManager)
+            ILogger<ArchiwumCrawler> logger,
+            IDeputiesCrawlerManager politiciansCrawlerManager)
         {
             Require.NotNull(pageRequester, nameof(pageRequester));
             Require.NotNull(logger, nameof(logger));

@@ -4,16 +4,16 @@ using System.Threading.Tasks;
 
 namespace Dzaba.Sejm.DataHarvest
 {
-    internal interface IPoliticiansCrawlerManager
+    internal interface IDeputiesCrawlerManager
     {
         Task CrawlAsync(Uri url, TermOfOffice termOfOffice, CrawlData data);
     }
 
-    internal sealed class PoliticiansCrawlerManager : IPoliticiansCrawlerManager
+    internal sealed class DeputiesCrawlerManager : IDeputiesCrawlerManager
     {
-        private readonly IOrkaPoliticiansCrawler orkaPoliticiansCrawler;
+        private readonly IOrkaDeputiesCrawler orkaPoliticiansCrawler;
 
-        public PoliticiansCrawlerManager(IOrkaPoliticiansCrawler orkaPoliticiansCrawler)
+        public DeputiesCrawlerManager(IOrkaDeputiesCrawler orkaPoliticiansCrawler)
         {
             Require.NotNull(orkaPoliticiansCrawler, nameof(orkaPoliticiansCrawler));
 

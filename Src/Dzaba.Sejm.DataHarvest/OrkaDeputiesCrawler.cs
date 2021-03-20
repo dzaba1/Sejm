@@ -9,18 +9,18 @@ using System.Threading.Tasks;
 
 namespace Dzaba.Sejm.DataHarvest
 {
-    internal interface IOrkaPoliticiansCrawler
+    internal interface IOrkaDeputiesCrawler
     {
         Task CrawlAsync(Uri url, TermOfOffice termOfOffice, CrawlData data);
     }
 
-    internal sealed class OrkaPoliticiansCrawler : IOrkaPoliticiansCrawler
+    internal sealed class OrkaDeputiesCrawler : IOrkaDeputiesCrawler
     {
         private readonly IPageRequesterWrap pageRequester;
-        private readonly ILogger<OrkaPoliticiansCrawler> logger;
+        private readonly ILogger<OrkaDeputiesCrawler> logger;
 
-        public OrkaPoliticiansCrawler(IPageRequesterWrap pageRequester,
-            ILogger<OrkaPoliticiansCrawler> logger)
+        public OrkaDeputiesCrawler(IPageRequesterWrap pageRequester,
+            ILogger<OrkaDeputiesCrawler> logger)
         {
             Require.NotNull(pageRequester, nameof(pageRequester));
             Require.NotNull(logger, nameof(logger));
