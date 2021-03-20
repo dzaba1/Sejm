@@ -1,4 +1,5 @@
 ﻿using AngleSharp.Html.Dom;
+using Dzaba.Sejm.DataHarvest.Model;
 using Dzaba.Sejm.Utils;
 using Microsoft.Extensions.Logging;
 using System;
@@ -18,15 +19,19 @@ namespace Dzaba.Sejm.DataHarvest
     {
         private readonly IPageRequesterWrap pageRequester;
         private readonly ILogger<OrkaDeputiesCrawler> logger;
+        private readonly IOrkaDeputyCrawler deputyCrawler;
 
         public OrkaDeputiesCrawler(IPageRequesterWrap pageRequester,
-            ILogger<OrkaDeputiesCrawler> logger)
+            ILogger<OrkaDeputiesCrawler> logger,
+            IOrkaDeputyCrawler deputyCrawler)
         {
             Require.NotNull(pageRequester, nameof(pageRequester));
             Require.NotNull(logger, nameof(logger));
+            Require.NotNull(deputyCrawler, nameof(deputyCrawler));
 
             this.pageRequester = pageRequester;
             this.logger = logger;
+            this.deputyCrawler = deputyCrawler;
         }
 
         public async Task CrawlAsync(Uri url, TermOfOffice termOfOffice, CrawlData data)
@@ -35,7 +40,7 @@ namespace Dzaba.Sejm.DataHarvest
             Require.NotNull(termOfOffice, nameof(termOfOffice));
             Require.NotNull(data, nameof(data));
 
-            logger.LogInformation("Start Orka politicians {Url}.", url);
+            logger.LogInformation("Start Orka deputies {Url}.", url);
             var perfWatch = Stopwatch.StartNew();
 
             var listUrl = await GetListUrlAsync(url)
@@ -44,7 +49,7 @@ namespace Dzaba.Sejm.DataHarvest
             await ProcessListAsync(listUrl, termOfOffice, data)
                 .ConfigureAwait(false);
 
-            logger.LogInformation("Crawling Orka politicians {Url} finished. Took {Elapsed}", url, perfWatch.Elapsed);
+            logger.LogInformation("Crawling Orka deputies {Url} finished. Took {Elapsed}", url, perfWatch.Elapsed);
         }
 
         private async Task ProcessListAsync(Uri url, TermOfOffice termOfOffice, CrawlData data)
@@ -52,7 +57,11 @@ namespace Dzaba.Sejm.DataHarvest
             var urls = await GetDeputiesUrlsAsync(url)
                 .ConfigureAwait(false);
 
-
+            foreach (var deputyUrl in urls)
+            {
+                await deputyCrawler.CrawlAsync(deputyUrl, termOfOffice, data)
+                    .ConfigureAwait(false);
+            }
         }
 
         private async Task<IReadOnlyList<Uri>> GetDeputiesUrlsAsync(Uri url)
@@ -67,12 +76,14 @@ namespace Dzaba.Sejm.DataHarvest
             var cells = tableBody.Rows
                 .Select(r => r.Cells.First());
 
-            var anchors = cells
-                .SelectMany(c => c.Children)
-                .OfType<IHtmlAnchorElement>();
             var hostUrl = url.GetHostUri();
-            return anchors
-                .Select(a => new Uri(hostUrl, a.Href))
+            var uris = cells
+                .SelectMany(c => c.Children)
+                .OfType<IHtmlAnchorElement>()
+                .Select(a => new Uri(a.Href));
+            
+            return uris
+                .Select(a => new Uri(hostUrl, a.ToLocalRelativePath()))
                 .ToArray();
         }
 

@@ -1,4 +1,5 @@
 ﻿using AngleSharp.Html.Dom;
+using Dzaba.Sejm.DataHarvest.Model;
 using Dzaba.Sejm.Utils;
 using Microsoft.Extensions.Logging;
 using System;
@@ -10,9 +11,10 @@ namespace Dzaba.Sejm.DataHarvest
 {
     public interface ISejmCrawler
     {
-        Task CrawlAsync(Uri root);
+        Task CrawlAsync(Uri root, SejmCrawlerOptions options);
 
         event Action<TermOfOffice> TermOfOfficeFound;
+        event Action<Deputy> DeputyFound;
     }
 
     internal sealed class SejmCrawler : ISejmCrawler, IDataNotifier
@@ -35,10 +37,12 @@ namespace Dzaba.Sejm.DataHarvest
         }
 
         public event Action<TermOfOffice> TermOfOfficeFound;
+        public event Action<Deputy> DeputyFound;
 
-        public async Task CrawlAsync(Uri root)
+        public async Task CrawlAsync(Uri root, SejmCrawlerOptions options)
         {
             Require.NotNull(root, nameof(root));
+            Require.NotNull(options, nameof(options));
 
             logger.LogInformation("Start crawling {Url}.", root);
             var perfWatch = Stopwatch.StartNew();
@@ -48,8 +52,16 @@ namespace Dzaba.Sejm.DataHarvest
 
             var document = mainPage.AngleSharpHtmlDocument;
 
-            await CrawlMainPageAsync(root, document).ConfigureAwait(false);
+            await CrawlMainPageAsync(root, document, options)
+                .ConfigureAwait(false);
             logger.LogInformation("Crawling {Url} finished. Took {Elapsed}", root, perfWatch.Elapsed);
+        }
+
+        public void NewDeputyFound(Deputy deputy)
+        {
+            Require.NotNull(deputy, nameof(deputy));
+
+            DeputyFound?.Invoke(deputy);
         }
 
         public void NewTermOfOfficeFound(TermOfOffice termOfOffice)
@@ -59,16 +71,20 @@ namespace Dzaba.Sejm.DataHarvest
             TermOfOfficeFound?.Invoke(termOfOffice);
         }
 
-        private async Task CrawlMainPageAsync(Uri root, IHtmlDocument document)
+        private async Task CrawlMainPageAsync(Uri root, IHtmlDocument document, SejmCrawlerOptions options)
         {
             var currentTermOfOffice = new TermOfOffice
             {
                 Name = GetNameFromPage(document),
                 Url = root
             };
-            TermOfOfficeFound?.Invoke(currentTermOfOffice);
 
-            var crawlData = new CrawlData(this, root);
+            if (options.SearchTermOfServices)
+            {
+                NewTermOfOfficeFound(currentTermOfOffice);
+            }
+
+            var crawlData = new CrawlData(this, root, options);
 
             var archUrl = GetArchiwumUrl(root, document);
             var archTask = archiwumCrawler.CrawlAsync(archUrl, crawlData);

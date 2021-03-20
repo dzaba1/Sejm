@@ -1,4 +1,5 @@
-﻿using Dzaba.Sejm.Utils;
+﻿using Dzaba.Sejm.DataHarvest.Model;
+using Dzaba.Sejm.Utils;
 using System;
 using System.Threading.Tasks;
 

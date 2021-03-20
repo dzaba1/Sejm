@@ -1,5 +1,6 @@
 ﻿using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
+using Dzaba.Sejm.DataHarvest.Model;
 using Dzaba.Sejm.Utils;
 using Microsoft.Extensions.Logging;
 using System;
@@ -79,6 +80,11 @@ namespace Dzaba.Sejm.DataHarvest
 
         private async Task ProcessPoliticans(IEnumerable<IHtmlAnchorElement> anchors, TermOfOffice termOfOffice, CrawlData data)
         {
+            if (!data.Options.SearchDeputies)
+            {
+                return;
+            }
+
             var politiciansAnchor = anchors.First(a => a.InnerHtml == "Posłowie");
             var url = new Uri(politiciansAnchor.Href);
 
@@ -100,7 +106,11 @@ namespace Dzaba.Sejm.DataHarvest
                 termOfService.Url = archUrl;
             }
 
-            data.DataNotifier.NewTermOfOfficeFound(termOfService);
+            if (data.Options.SearchTermOfServices)
+            {
+                data.DataNotifier.NewTermOfOfficeFound(termOfService);
+            }
+            
             return termOfService;
         }
 

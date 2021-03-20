@@ -14,6 +14,7 @@ namespace Dzaba.Sejm.DataHarvest
             services.AddTransient<IArchiwumCrawler, ArchiwumCrawler>();
             services.AddTransient<IOrkaDeputiesCrawler, OrkaDeputiesCrawler>();
             services.AddTransient<IDeputiesCrawlerManager, DeputiesCrawlerManager>();
+            services.AddTransient<IOrkaDeputyCrawler, OrkaDeputyCrawler>();
         }
     }
 }

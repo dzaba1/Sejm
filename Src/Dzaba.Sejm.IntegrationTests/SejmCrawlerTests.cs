@@ -1,4 +1,5 @@
 ﻿using Dzaba.Sejm.DataHarvest;
+using Dzaba.Sejm.DataHarvest.Model;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
@@ -24,9 +25,34 @@ namespace Dzaba.Sejm.IntegrationTests
             var sut = CreateSut();
             sut.TermOfOfficeFound += t => terms.Add(t);
 
-            await sut.CrawlAsync(new Uri("https://www.sejm.gov.pl/")).ConfigureAwait(false);
+            var options = new SejmCrawlerOptions
+            {
+                SearchDeputies = false
+            };
+
+            await sut.CrawlAsync(new Uri("https://www.sejm.gov.pl/"), options)
+                .ConfigureAwait(false);
 
             terms.Should().HaveCountGreaterOrEqualTo(10);
+        }
+
+        [Test]
+        public async Task CrawlAsync_WhenInvoked_ItFindsDeputies()
+        {
+            var deputies = new List<Deputy>();
+
+            var sut = CreateSut();
+            sut.DeputyFound += t => deputies.Add(t);
+
+            var options = new SejmCrawlerOptions
+            {
+                SearchTermOfServices = false
+            };
+
+            await sut.CrawlAsync(new Uri("https://www.sejm.gov.pl/"), options)
+                .ConfigureAwait(false);
+
+            deputies.Should().HaveCountGreaterOrEqualTo(10);
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Dzaba.Sejm.DataHarvest
+namespace Dzaba.Sejm.DataHarvest.Model
 {
     public sealed class TermOfOffice
     {
