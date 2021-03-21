@@ -3,7 +3,7 @@ using Abot2.Poco;
 using System;
 using System.Threading.Tasks;
 
-namespace Dzaba.Sejm.DataHarvest
+namespace Dzaba.Sejm.DataHarvest.Common
 {
     public interface IPageRequesterWrap
     {

@@ -1,11 +1,11 @@
 ﻿using AngleSharp.Dom;
+using Dzaba.Sejm.DataHarvest.Common;
 using Dzaba.Sejm.DataHarvest.Model;
 using Dzaba.Sejm.Utils;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 

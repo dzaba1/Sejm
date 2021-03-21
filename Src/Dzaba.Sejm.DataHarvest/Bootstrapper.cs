@@ -10,7 +10,6 @@ namespace Dzaba.Sejm.DataHarvest
             Require.NotNull(services, nameof(services));
 
             services.AddTransient<ISejmCrawler, SejmCrawler>();
-            services.AddTransient<IPageRequesterWrap, PageRequesterWrap>();
             services.AddTransient<IArchiwumCrawler, ArchiwumCrawler>();
             services.AddTransient<IOrkaDeputiesCrawler, OrkaDeputiesCrawler>();
             services.AddTransient<IDeputiesCrawlerManager, DeputiesCrawlerManager>();

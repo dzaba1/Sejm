@@ -1,4 +1,5 @@
 ﻿using AngleSharp.Html.Dom;
+using Dzaba.Sejm.DataHarvest.Common;
 using Dzaba.Sejm.DataHarvest.Model;
 using Dzaba.Sejm.Utils;
 using Microsoft.Extensions.Logging;

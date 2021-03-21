@@ -7,9 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dzaba.Sejm.Utils", "Src\Dza
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dzaba.Sejm.TestUtils", "Src\Dzaba.Sejm.TestUtils\Dzaba.Sejm.TestUtils.csproj", "{C03460FD-597C-4E6C-91EC-FD3BDD042510}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dzaba.Sejm.DataHarvest", "Src\Dzaba.Sejm.DataHarvest\Dzaba.Sejm.DataHarvest.csproj", "{2A7637BC-F01C-4C77-872D-551B70C89659}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dzaba.Sejm.DataHarvest", "Src\Dzaba.Sejm.DataHarvest\Dzaba.Sejm.DataHarvest.csproj", "{2A7637BC-F01C-4C77-872D-551B70C89659}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dzaba.Sejm.IntegrationTests", "Src\Dzaba.Sejm.IntegrationTests\Dzaba.Sejm.IntegrationTests.csproj", "{4EDAF8B3-ABCA-466C-B3FD-18ED7CACB811}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dzaba.Sejm.IntegrationTests", "Src\Dzaba.Sejm.IntegrationTests\Dzaba.Sejm.IntegrationTests.csproj", "{4EDAF8B3-ABCA-466C-B3FD-18ED7CACB811}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dzaba.Sejm.DataHarvest.Common", "Src\Dzaba.Sejm.DataHarvest.Common\Dzaba.Sejm.DataHarvest.Common.csproj", "{B0C9FA24-7FA4-47A6-89BF-D6AA4299FE31}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{4EDAF8B3-ABCA-466C-B3FD-18ED7CACB811}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4EDAF8B3-ABCA-466C-B3FD-18ED7CACB811}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4EDAF8B3-ABCA-466C-B3FD-18ED7CACB811}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B0C9FA24-7FA4-47A6-89BF-D6AA4299FE31}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0C9FA24-7FA4-47A6-89BF-D6AA4299FE31}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0C9FA24-7FA4-47A6-89BF-D6AA4299FE31}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0C9FA24-7FA4-47A6-89BF-D6AA4299FE31}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
