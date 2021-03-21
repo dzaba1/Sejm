@@ -1,4 +1,5 @@
 ﻿using Dzaba.Sejm.DataHarvest;
+using Dzaba.Sejm.DataHarvest.Common;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Serilog;
@@ -17,8 +18,17 @@ namespace Dzaba.Sejm.IntegrationTests
         {
             var services = new ServiceCollection();
             services.RegisterSejmDataHarvest();
+            services.RegisterSejmDataHarvestCommon();
 
             RegisterLogging(services);
+
+            services.AddSingleton<IPageRequestSettings>(new PageRequestSettings
+            {
+                Host = "www.sejm.gov.pl",
+                DelayBetweenCalls = TimeSpan.FromMilliseconds(500),
+                Retires = 3,
+                RetryWaitTime = TimeSpan.FromSeconds(2)
+            });
 
             container = services.BuildServiceProvider();
         }
