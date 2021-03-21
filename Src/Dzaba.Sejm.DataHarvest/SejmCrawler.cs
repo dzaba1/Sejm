@@ -76,7 +76,7 @@ namespace Dzaba.Sejm.DataHarvest
         {
             var currentTermOfOffice = new TermOfOffice
             {
-                Name = GetNameFromPage(document),
+                Name = GetNameFromPage(root, document),
                 Url = root
             };
 
@@ -87,10 +87,23 @@ namespace Dzaba.Sejm.DataHarvest
 
             var crawlData = new CrawlData(this, root, options);
 
-            var archUrl = GetArchiwumUrl(root, document);
-            var archTask = archiwumCrawler.CrawlAsync(archUrl, crawlData);
+            await ProcessArchiwumAsync(root, document, crawlData)
+                .ConfigureAwait(false);
+        }
 
-            await archTask.ConfigureAwait(false);
+        private async Task ProcessArchiwumAsync(Uri root, IHtmlDocument document, CrawlData crawlData)
+        {
+            try
+            {
+                var archUrl = GetArchiwumUrl(root, document);
+                var archTask = archiwumCrawler.CrawlAsync(archUrl, crawlData);
+
+                await archTask.ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Error crawling Archiwum.");
+            }
         }
 
         private Uri GetArchiwumUrl(Uri root, IHtmlDocument document)
@@ -102,12 +115,20 @@ namespace Dzaba.Sejm.DataHarvest
             return new Uri(root, arch.PathName);
         }
 
-        private string GetNameFromPage(IHtmlDocument document)
+        private string GetNameFromPage(Uri url, IHtmlDocument document)
         {
-            var el = document.All
+            try
+            {
+                var el = document.All
                 .FirstOrDefault(e => e.LocalName == "span" && e.ClassName == "kadencja");
 
-            return el.InnerHtml;
+                return el.TextContent;
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Error getting name for a term of service. Url: {Url}", url);
+                return null;
+            }
         }
     }
 }
