@@ -57,7 +57,7 @@ namespace Dzaba.Sejm.DataHarvest
             SetBirths(list, deputy);
             data.DataNotifier.NewDeputyFound(deputy);
 
-            logger.LogInformation("Crawling Orka deputiy {Url} finished. Took {Elapsed}", url, perfWatch.Elapsed);
+            logger.LogInformation("Crawling Orka deputy {Url} finished. Took {Elapsed}", url, perfWatch.Elapsed);
         }
 
         private string GetName(IElement list)

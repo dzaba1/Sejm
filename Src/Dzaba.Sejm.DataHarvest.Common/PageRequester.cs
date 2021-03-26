@@ -3,6 +3,7 @@ using Abot2.Poco;
 using Dzaba.Sejm.Utils;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace Dzaba.Sejm.DataHarvest.Common
@@ -14,24 +15,28 @@ namespace Dzaba.Sejm.DataHarvest.Common
 
     internal sealed class PageRequesterWrap : IPageRequesterWrap
     {
-        private readonly IPageRequesterManager pageRequesterManager;
+        private readonly IPageRequesterSettingsProvider settingsProvider;
         private readonly ILogger<PageRequesterWrap> logger;
+        private readonly ILastCalls lastCalls;
 
-        public PageRequesterWrap(IPageRequesterManager pageRequesterManager,
-            ILogger<PageRequesterWrap> logger)
+        public PageRequesterWrap(IPageRequesterSettingsProvider settingsProvider,
+            ILogger<PageRequesterWrap> logger,
+            ILastCalls lastCalls)
         {
-            Require.NotNull(pageRequesterManager, nameof(pageRequesterManager));
+            Require.NotNull(settingsProvider, nameof(settingsProvider));
             Require.NotNull(logger, nameof(logger));
+            Require.NotNull(lastCalls, nameof(lastCalls));
 
-            this.pageRequesterManager = pageRequesterManager;
+            this.settingsProvider = settingsProvider;
             this.logger = logger;
+            this.lastCalls = lastCalls;
         }
 
         public async Task<CrawledPage> MakeRequestAsync(Uri url)
         {
             Require.NotNull(url, nameof(url));
 
-            var settings = pageRequesterManager.GetSettings(url);
+            var settings = settingsProvider.GetSettings(url);
             var retryCount = 0;
 
             while (true)
@@ -60,7 +65,9 @@ namespace Dzaba.Sejm.DataHarvest.Common
 
         private async Task<CrawledPage> MakeOneRequestAsync(Uri uri)
         {
-            await pageRequesterManager.WaitForCallAsync(uri)
+            var perfWatch = Stopwatch.StartNew();
+
+            await lastCalls.WaitForCallAsync(uri)
                 .ConfigureAwait(false);
 
             using (var contentExtractor = new WebContentExtractor())
@@ -73,6 +80,7 @@ namespace Dzaba.Sejm.DataHarvest.Common
                         throw new InvalidOperationException("HTTP error.", page.HttpRequestException);
                     }
 
+                    logger.LogDebug("Request to {Url} took {Elapsed}", uri, perfWatch.Elapsed);
                     return page;
                 }
             }

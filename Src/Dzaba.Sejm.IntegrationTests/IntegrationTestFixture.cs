@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Serilog;
 using System;
+using System.IO;
 
 namespace Dzaba.Sejm.IntegrationTests
 {
@@ -29,15 +30,25 @@ namespace Dzaba.Sejm.IntegrationTests
                 Retires = 3,
                 RetryWaitTime = TimeSpan.FromSeconds(2)
             });
+            services.AddSingleton<IPageRequestSettings>(new PageRequestSettings
+            {
+                Host = "orka.sejm.gov.pl",
+                DelayBetweenCalls = TimeSpan.FromMilliseconds(500),
+                Retires = 3,
+                RetryWaitTime = TimeSpan.FromSeconds(2)
+            });
 
             container = services.BuildServiceProvider();
         }
 
         private void RegisterLogging(IServiceCollection services)
         {
+            var filename = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "IntegrationTests.log");
+
             var logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
                 .WriteTo.Console()
+                .WriteTo.File(filename)
                 .CreateLogger();
 
             services.AddLogging(b => b.AddSerilog(logger, true));

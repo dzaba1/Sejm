@@ -10,7 +10,8 @@ namespace Dzaba.Sejm.DataHarvest.Common
             Require.NotNull(services, nameof(services));
 
             services.AddTransient<IPageRequesterWrap, PageRequesterWrap>();
-            services.AddSingleton<IPageRequesterManager, PageRequesterManager>();
+            services.AddTransient<IPageRequesterSettingsProvider, PageRequesterSettingsProvider>();
+            services.AddSingleton<ILastCalls, LastCalls>();
         }
     }
 }
