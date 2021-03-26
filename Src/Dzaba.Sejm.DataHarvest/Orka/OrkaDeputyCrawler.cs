@@ -18,9 +18,6 @@ namespace Dzaba.Sejm.DataHarvest.Orka
 
     internal sealed class OrkaDeputyCrawler : IOrkaDeputyCrawler
     {
-        private static readonly Regex BirthRegex = new Regex(@"^(?<Date>((\d{2})|(-1))-{1}((\d{2})|(-1))-{1}((\d{4})|(-1))),\s(?<City>.+)$");
-        private static readonly Regex BirthRegex2 = new Regex(@"^(?<Date>((\d{2})|(-1))-{1}((\d{2})|(-1))-{1}((\d{4})|(-1)))");
-
         private readonly IPageRequesterWrap pageRequester;
         private readonly ILogger<OrkaDeputiesCrawler> logger;
 
@@ -72,13 +69,13 @@ namespace Dzaba.Sejm.DataHarvest.Orka
             foreach (var p in paragraphs)
             {
                 var text = p.TextContent.Trim();
-                match = BirthRegex.Match(text);
+                match = Consts.DeputyBirthRegex.Match(text);
                 if (match.Success)
                 {
                     return true;
                 }
 
-                match = BirthRegex2.Match(text);
+                match = Consts.DeputyBirthRegex2.Match(text);
                 if (match.Success)
                 {
                     return true;
@@ -100,7 +97,7 @@ namespace Dzaba.Sejm.DataHarvest.Orka
                 }
                 else
                 {
-                    logger.LogWarning("Couldn't parse date {BirthDate}.", birthDateText);
+                    logger.LogWarning("Couldn't parse date {BirthDate}. Url: {Url}", birthDateText, deputy.Url);
                 }
 
                 if (match.Groups.Count > 1)
