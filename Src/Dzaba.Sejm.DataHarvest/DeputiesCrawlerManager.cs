@@ -1,6 +1,9 @@
 ﻿using Dzaba.Sejm.DataHarvest.Model;
 using Dzaba.Sejm.Utils;
+using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Dzaba.Sejm.DataHarvest
@@ -12,13 +15,17 @@ namespace Dzaba.Sejm.DataHarvest
 
     internal sealed class DeputiesCrawlerManager : IDeputiesCrawlerManager
     {
-        private readonly IOrkaDeputiesCrawler orkaPoliticiansCrawler;
+        private readonly IDeputiesCrawler[] deputiesCrawlers;
+        private readonly ILogger<DeputiesCrawlerManager> logger;
 
-        public DeputiesCrawlerManager(IOrkaDeputiesCrawler orkaPoliticiansCrawler)
+        public DeputiesCrawlerManager(IEnumerable<IDeputiesCrawler> deputiesCrawlers,
+            ILogger<DeputiesCrawlerManager> logger)
         {
-            Require.NotNull(orkaPoliticiansCrawler, nameof(orkaPoliticiansCrawler));
+            Require.NotNull(deputiesCrawlers, nameof(deputiesCrawlers));
+            Require.NotNull(logger, nameof(logger));
 
-            this.orkaPoliticiansCrawler = orkaPoliticiansCrawler;
+            this.deputiesCrawlers = deputiesCrawlers.ToArray();
+            this.logger = logger;
         }
 
         public async Task CrawlAsync(Uri url, TermOfOffice termOfOffice, CrawlData data)
@@ -27,9 +34,14 @@ namespace Dzaba.Sejm.DataHarvest
             Require.NotNull(termOfOffice, nameof(termOfOffice));
             Require.NotNull(data, nameof(data));
 
-            if (url.Host == "orka.sejm.gov.pl")
+            var crawler = deputiesCrawlers.FirstOrDefault(d => d.IsMatch(url));
+            if (crawler == null)
             {
-                await orkaPoliticiansCrawler.CrawlAsync(url, termOfOffice, data)
+                logger.LogWarning("Couldn't match correct crawler for url {Url}", url);
+            }
+            else
+            {
+                await crawler.CrawlAsync(url, termOfOffice, data)
                     .ConfigureAwait(false);
             }
         }

@@ -24,7 +24,7 @@ namespace Dzaba.Sejm.Utils
         {
             Require.NotNull(uri, nameof(uri));
 
-            return uri.LocalPath.TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            return uri.PathAndQuery.TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
         }
     }
 }

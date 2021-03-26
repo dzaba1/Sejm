@@ -9,14 +9,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Dzaba.Sejm.DataHarvest
+namespace Dzaba.Sejm.DataHarvest.Orka
 {
-    internal interface IOrkaDeputiesCrawler
-    {
-        Task CrawlAsync(Uri url, TermOfOffice termOfOffice, CrawlData data);
-    }
-
-    internal sealed class OrkaDeputiesCrawler : IOrkaDeputiesCrawler
+    internal sealed class OrkaDeputiesCrawler : IDeputiesCrawler
     {
         private readonly IPageRequesterWrap pageRequester;
         private readonly ILogger<OrkaDeputiesCrawler> logger;
@@ -118,6 +113,13 @@ namespace Dzaba.Sejm.DataHarvest
             var localRelative = source.ToLocalRelativePath();
 
             return new Uri(baseUri, localRelative);
+        }
+
+        public bool IsMatch(Uri url)
+        {
+            Require.NotNull(url, nameof(url));
+
+            return url.Host == "orka.sejm.gov.pl";
         }
     }
 }

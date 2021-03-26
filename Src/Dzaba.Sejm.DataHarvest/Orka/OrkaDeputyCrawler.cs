@@ -9,7 +9,7 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace Dzaba.Sejm.DataHarvest
+namespace Dzaba.Sejm.DataHarvest.Orka
 {
     internal interface IOrkaDeputyCrawler
     {
