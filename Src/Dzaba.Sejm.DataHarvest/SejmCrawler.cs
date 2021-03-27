@@ -1,11 +1,13 @@
 ﻿using AngleSharp.Html.Dom;
 using Dzaba.Sejm.DataHarvest.Common;
+using Dzaba.Sejm.DataHarvest.Deputies;
 using Dzaba.Sejm.DataHarvest.Model;
 using Dzaba.Sejm.Utils;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Dzaba.Sejm.DataHarvest
@@ -20,21 +22,27 @@ namespace Dzaba.Sejm.DataHarvest
 
     internal sealed class SejmCrawler : ISejmCrawler, IDataNotifier
     {
+        private static readonly Regex SejmIdRegex = new Regex(@"Sejm(?<Id>\d+)\.nsf", RegexOptions.IgnoreCase);
+
         private readonly IPageRequesterWrap pageRequester;
         private readonly ILogger<SejmCrawler> logger;
         private readonly IArchiwumCrawler archiwumCrawler;
+        private readonly IDeputiesCrawlerManager deputiesCrawlerManager;
 
         public SejmCrawler(IPageRequesterWrap pageRequester,
             ILogger<SejmCrawler> logger,
-            IArchiwumCrawler archiwumCrawler)
+            IArchiwumCrawler archiwumCrawler,
+            IDeputiesCrawlerManager deputiesCrawlerManager)
         {
             Require.NotNull(pageRequester, nameof(pageRequester));
             Require.NotNull(logger, nameof(logger));
             Require.NotNull(archiwumCrawler, nameof(archiwumCrawler));
+            Require.NotNull(deputiesCrawlerManager, nameof(deputiesCrawlerManager));
 
             this.pageRequester = pageRequester;
             this.logger = logger;
             this.archiwumCrawler = archiwumCrawler;
+            this.deputiesCrawlerManager = deputiesCrawlerManager;
         }
 
         public event Action<TermOfOffice> TermOfOfficeFound;
@@ -87,7 +95,48 @@ namespace Dzaba.Sejm.DataHarvest
 
             var crawlData = new CrawlData(this, root, options);
 
-            await ProcessArchiwumAsync(root, document, crawlData)
+            if (!options.SkipArchiwum)
+            {
+                await ProcessArchiwumAsync(root, document, crawlData)
+                    .ConfigureAwait(false);
+            }
+            else
+            {
+                logger.LogInformation("Skipping archiwum.");
+            }
+
+            if (options.SearchDeputies)
+            {
+                await ProcessDeputies(document, currentTermOfOffice, crawlData)
+                    .ConfigureAwait(false);
+            }
+            else
+            {
+                logger.LogInformation("Skipping current deputies.");
+            }
+        }
+
+        private int GetSejmId(IHtmlDocument document)
+        {
+            var a = document.All
+                .OfType<IHtmlAnchorElement>()
+                .First(x => x.LocalName == "a" && x.TextContent == "Strona główna");
+
+            var match = SejmIdRegex.Match(a.Href);
+            if (!match.Success)
+            {
+                throw new InvalidOperationException("Can't find sejm id.");
+            }
+
+            return int.Parse(match.Groups["Id"].Value);
+        }
+
+        private async Task ProcessDeputies(IHtmlDocument document, TermOfOffice termOfOffice, CrawlData data)
+        {
+            var id = GetSejmId(document);
+            var url = new Uri(data.RootUrl.GetHostUri(), $"https://www.sejm.gov.pl/Sejm{id}.nsf/poslowie.xsp?type=A");
+
+            await deputiesCrawlerManager.CrawlAsync(url, termOfOffice, data)
                 .ConfigureAwait(false);
         }
 
@@ -110,7 +159,7 @@ namespace Dzaba.Sejm.DataHarvest
         {
             var arch = document.All
                 .OfType<IHtmlAnchorElement>()
-                .First(x => x.LocalName == "a" && x.InnerHtml == "Archiwum");
+                .First(x => x.LocalName == "a" && x.TextContent == "Archiwum");
 
             return new Uri(root, arch.PathName);
         }

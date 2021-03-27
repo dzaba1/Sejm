@@ -1,5 +1,6 @@
 ﻿using AngleSharp.Html.Dom;
 using Dzaba.Sejm.DataHarvest.Common;
+using Dzaba.Sejm.DataHarvest.Deputies;
 using Dzaba.Sejm.DataHarvest.Model;
 using Dzaba.Sejm.Utils;
 using Microsoft.Extensions.Logging;
@@ -14,23 +15,23 @@ namespace Dzaba.Sejm.DataHarvest.Xsf
 {
     internal sealed class XsfDeputiesCrawler : IDeputiesCrawler
     {
-        private static readonly Regex DeputiesXsfRegex = new Regex(@"\/?sejm\d+\.nsf\/poslowie\.xsp");
+        private static readonly Regex DeputiesXsfRegex = new Regex(@"\/?Sejm\d+\.nsf\/posel\.xsp", RegexOptions.IgnoreCase);
 
         private readonly ILogger<XsfDeputiesCrawler> logger;
         private readonly IPageRequesterWrap pageRequester;
-        private readonly IXsfDeputyCrawler deputyCrawler;
+        private readonly IDeputyCrawlerManager deputyCrawlerManager;
 
         public XsfDeputiesCrawler(ILogger<XsfDeputiesCrawler> logger,
             IPageRequesterWrap pageRequester,
-            IXsfDeputyCrawler deputyCrawler)
+            IDeputyCrawlerManager deputyCrawlerManager)
         {
             Require.NotNull(logger, nameof(logger));
             Require.NotNull(pageRequester, nameof(pageRequester));
-            Require.NotNull(deputyCrawler, nameof(deputyCrawler));
+            Require.NotNull(deputyCrawlerManager, nameof(deputyCrawlerManager));
 
             this.logger = logger;
             this.pageRequester = pageRequester;
-            this.deputyCrawler = deputyCrawler;
+            this.deputyCrawlerManager = deputyCrawlerManager;
         }
 
         public async Task CrawlAsync(Uri url, TermOfOffice termOfOffice, CrawlData data)
@@ -55,8 +56,9 @@ namespace Dzaba.Sejm.DataHarvest.Xsf
         {
             foreach (var deputyUrl in urls)
             {
-                await deputyCrawler.CrawlAsync(deputyUrl, termOfOffice, data)
+                var deputy = await deputyCrawlerManager.CrawlAsync(deputyUrl, termOfOffice)
                     .ConfigureAwait(false);
+                data.DataNotifier.NewDeputyFound(deputy);
             }
         }
 

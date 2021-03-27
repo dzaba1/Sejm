@@ -1,6 +1,7 @@
-﻿using System;
+﻿using Dzaba.Sejm.DataHarvest.Model;
+using System;
 
-namespace Dzaba.Sejm.DataHarvest.Model
+namespace Dzaba.Sejm.DataHarvest.Deputies
 {
     public sealed class Deputy
     {

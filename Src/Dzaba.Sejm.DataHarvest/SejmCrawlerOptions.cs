@@ -4,5 +4,6 @@
     {
         public bool SearchDeputies { get; set; } = true;
         public bool SearchTermOfServices { get; set; } = true;
+        public bool SkipArchiwum { get; set; } = false;
     }
 }

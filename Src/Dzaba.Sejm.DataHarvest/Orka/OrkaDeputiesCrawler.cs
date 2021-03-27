@@ -1,5 +1,6 @@
 ﻿using AngleSharp.Html.Dom;
 using Dzaba.Sejm.DataHarvest.Common;
+using Dzaba.Sejm.DataHarvest.Deputies;
 using Dzaba.Sejm.DataHarvest.Model;
 using Dzaba.Sejm.Utils;
 using Microsoft.Extensions.Logging;
@@ -15,19 +16,19 @@ namespace Dzaba.Sejm.DataHarvest.Orka
     {
         private readonly IPageRequesterWrap pageRequester;
         private readonly ILogger<OrkaDeputiesCrawler> logger;
-        private readonly IOrkaDeputyCrawler deputyCrawler;
+        private readonly IDeputyCrawlerManager deputyCrawlerManager;
 
         public OrkaDeputiesCrawler(IPageRequesterWrap pageRequester,
             ILogger<OrkaDeputiesCrawler> logger,
-            IOrkaDeputyCrawler deputyCrawler)
+            IDeputyCrawlerManager deputyCrawlerManager)
         {
             Require.NotNull(pageRequester, nameof(pageRequester));
             Require.NotNull(logger, nameof(logger));
-            Require.NotNull(deputyCrawler, nameof(deputyCrawler));
+            Require.NotNull(deputyCrawlerManager, nameof(deputyCrawlerManager));
 
             this.pageRequester = pageRequester;
             this.logger = logger;
-            this.deputyCrawler = deputyCrawler;
+            this.deputyCrawlerManager = deputyCrawlerManager;
         }
 
         public async Task CrawlAsync(Uri url, TermOfOffice termOfOffice, CrawlData data)
@@ -55,8 +56,9 @@ namespace Dzaba.Sejm.DataHarvest.Orka
 
             foreach (var deputyUrl in urls)
             {
-                await deputyCrawler.CrawlAsync(deputyUrl, termOfOffice, data)
+                var deputy = await deputyCrawlerManager.CrawlAsync(deputyUrl, termOfOffice)
                     .ConfigureAwait(false);
+                data.DataNotifier.NewDeputyFound(deputy);
             }
         }
 

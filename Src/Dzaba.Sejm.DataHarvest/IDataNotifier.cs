@@ -1,4 +1,5 @@
-﻿using Dzaba.Sejm.DataHarvest.Model;
+﻿using Dzaba.Sejm.DataHarvest.Deputies;
+using Dzaba.Sejm.DataHarvest.Model;
 
 namespace Dzaba.Sejm.DataHarvest
 {

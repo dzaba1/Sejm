@@ -1,5 +1,6 @@
 ﻿using AngleSharp.Dom;
 using Dzaba.Sejm.DataHarvest.Common;
+using Dzaba.Sejm.DataHarvest.Deputies;
 using Dzaba.Sejm.DataHarvest.Model;
 using Dzaba.Sejm.Utils;
 using Microsoft.Extensions.Logging;
@@ -11,13 +12,10 @@ using System.Threading.Tasks;
 
 namespace Dzaba.Sejm.DataHarvest.Xsf
 {
-    internal interface IXsfDeputyCrawler
+    internal sealed class XsfDeputyCrawler : IDeputyCrawler
     {
-        Task CrawlAsync(Uri url, TermOfOffice termOfOffice, CrawlData data);
-    }
+        private static readonly Regex DeputyXsfRegex = new Regex(@"\/?sejm\d+\.nsf\/poslowie\.xsp", RegexOptions.IgnoreCase);
 
-    internal sealed class XsfDeputyCrawler : IXsfDeputyCrawler
-    {
         private readonly ILogger<XsfDeputyCrawler> logger;
         private readonly IPageRequesterWrap pageRequester;
 
@@ -31,11 +29,10 @@ namespace Dzaba.Sejm.DataHarvest.Xsf
             this.pageRequester = pageRequester;
         }
 
-        public async Task CrawlAsync(Uri url, TermOfOffice termOfOffice, CrawlData data)
+        public async Task<Deputy> CrawlAsync(Uri url, TermOfOffice termOfOffice)
         {
             Require.NotNull(url, nameof(url));
             Require.NotNull(termOfOffice, nameof(termOfOffice));
-            Require.NotNull(data, nameof(data));
 
             logger.LogInformation("Start xsf deputy {Url}.", url);
             var perfWatch = Stopwatch.StartNew();
@@ -52,9 +49,9 @@ namespace Dzaba.Sejm.DataHarvest.Xsf
                 Url = url
             };
             SetBirths(div, deputy);
-            data.DataNotifier.NewDeputyFound(deputy);
 
             logger.LogInformation("Crawling Orka deputy {Url} finished. Took {Elapsed}", url, perfWatch.Elapsed);
+            return deputy;
         }
 
         private void SetBirths(IElement div, Deputy deputy)
@@ -113,6 +110,13 @@ namespace Dzaba.Sejm.DataHarvest.Xsf
         {
             var h = div.QuerySelector("h1");
             return h.TextContent;
+        }
+
+        public bool IsMatch(Uri url)
+        {
+            Require.NotNull(url, nameof(url));
+
+            return DeputyXsfRegex.IsMatch(url.AbsolutePath);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Dzaba.Sejm.DataHarvest;
+using Dzaba.Sejm.DataHarvest.Deputies;
 using Dzaba.Sejm.DataHarvest.Model;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;

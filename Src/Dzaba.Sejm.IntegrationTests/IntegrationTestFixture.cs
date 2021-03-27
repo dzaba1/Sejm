@@ -26,14 +26,14 @@ namespace Dzaba.Sejm.IntegrationTests
             services.AddSingleton<IPageRequestSettings>(new PageRequestSettings
             {
                 Host = "www.sejm.gov.pl",
-                DelayBetweenCalls = TimeSpan.FromMilliseconds(500),
+                DelayBetweenCalls = TimeSpan.FromSeconds(3),
                 Retires = 3,
                 RetryWaitTime = TimeSpan.FromSeconds(2)
             });
             services.AddSingleton<IPageRequestSettings>(new PageRequestSettings
             {
                 Host = "orka.sejm.gov.pl",
-                DelayBetweenCalls = TimeSpan.FromMilliseconds(500),
+                DelayBetweenCalls = TimeSpan.FromSeconds(3),
                 Retires = 3,
                 RetryWaitTime = TimeSpan.FromSeconds(2)
             });

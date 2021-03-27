@@ -2,7 +2,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Dzaba.Sejm.DataHarvest
+namespace Dzaba.Sejm.DataHarvest.Deputies
 {
     internal interface IDeputiesCrawler
     {

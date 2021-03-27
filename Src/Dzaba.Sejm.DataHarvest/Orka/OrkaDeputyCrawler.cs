@@ -1,5 +1,6 @@
 ﻿using AngleSharp.Dom;
 using Dzaba.Sejm.DataHarvest.Common;
+using Dzaba.Sejm.DataHarvest.Deputies;
 using Dzaba.Sejm.DataHarvest.Model;
 using Dzaba.Sejm.Utils;
 using Microsoft.Extensions.Logging;
@@ -11,12 +12,7 @@ using System.Threading.Tasks;
 
 namespace Dzaba.Sejm.DataHarvest.Orka
 {
-    internal interface IOrkaDeputyCrawler
-    {
-        Task CrawlAsync(Uri url, TermOfOffice termOfOffice, CrawlData data);
-    }
-
-    internal sealed class OrkaDeputyCrawler : IOrkaDeputyCrawler
+    internal sealed class OrkaDeputyCrawler : IDeputyCrawler
     {
         private readonly IPageRequesterWrap pageRequester;
         private readonly ILogger<OrkaDeputiesCrawler> logger;
@@ -31,11 +27,10 @@ namespace Dzaba.Sejm.DataHarvest.Orka
             this.logger = logger;
         }
 
-        public async Task CrawlAsync(Uri url, TermOfOffice termOfOffice, CrawlData data)
+        public async Task<Deputy> CrawlAsync(Uri url, TermOfOffice termOfOffice)
         {
             Require.NotNull(url, nameof(url));
             Require.NotNull(termOfOffice, nameof(termOfOffice));
-            Require.NotNull(data, nameof(data));
 
             logger.LogInformation("Start Orka deputy {Url}.", url);
             var perfWatch = Stopwatch.StartNew();
@@ -52,9 +47,9 @@ namespace Dzaba.Sejm.DataHarvest.Orka
                 Url = url
             };
             SetBirths(list, deputy);
-            data.DataNotifier.NewDeputyFound(deputy);
 
             logger.LogInformation("Crawling Orka deputy {Url} finished. Took {Elapsed}", url, perfWatch.Elapsed);
+            return deputy;
         }
 
         private string GetName(IElement list)
@@ -113,6 +108,13 @@ namespace Dzaba.Sejm.DataHarvest.Orka
             {
                 logger.LogWarning("Couldn't match birth. Url: {Url}", deputy.Url);
             }
+        }
+
+        public bool IsMatch(Uri url)
+        {
+            Require.NotNull(url, nameof(url));
+
+            return url.Host == "orka.sejm.gov.pl";
         }
     }
 }

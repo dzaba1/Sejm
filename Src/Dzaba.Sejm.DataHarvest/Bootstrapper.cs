@@ -1,4 +1,5 @@
-﻿using Dzaba.Sejm.DataHarvest.Orka;
+﻿using Dzaba.Sejm.DataHarvest.Deputies;
+using Dzaba.Sejm.DataHarvest.Orka;
 using Dzaba.Sejm.DataHarvest.Xsf;
 using Dzaba.Sejm.Utils;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,9 +16,9 @@ namespace Dzaba.Sejm.DataHarvest
             services.AddTransient<IArchiwumCrawler, ArchiwumCrawler>();
             services.AddTransient<IDeputiesCrawler, OrkaDeputiesCrawler>();
             services.AddTransient<IDeputiesCrawlerManager, DeputiesCrawlerManager>();
-            services.AddTransient<IOrkaDeputyCrawler, OrkaDeputyCrawler>();
+            services.AddTransient<IDeputyCrawler, OrkaDeputyCrawler>();
             services.AddTransient<IDeputiesCrawler, XsfDeputiesCrawler>();
-            services.AddTransient<IXsfDeputyCrawler, XsfDeputyCrawler>();
+            services.AddTransient<IDeputyCrawler, XsfDeputyCrawler>();
         }
     }
 }
